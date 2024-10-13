@@ -4,17 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Budget</title>
-
-    <!-- SEO Change; Adding description-->
+    
     <meta name="description" content="A personal budgeting app">
-
-    <!-- SEO Change; Adding keywords-->
     <meta name="keywords" content="app free budget finance manage">
 
     <link rel="stylesheet" href="reset.css">
     <link rel="stylesheet" href="main.css">
-
-    <!-- SEO Change; Adding Open Graph tags-->
+    
     <meta property="og:title" content="Personal Budget: A free personal budger app">
     <meta property="og:url" content="http://157.230.92.78/pb/public/">
     <meta property="og:image" content="bg.png">
@@ -23,11 +19,7 @@
 </head>
 
 <body>
-    <!-- A11y Change; skip to main content-->
     <a class="skip-to-main" href="#content">Skip to main content</a>
-
-    <!-- Sematic HTML Change; div to nav-->
-    <!-- A11y Change; ARIA landmark roll-->
     <nav role="navigation">
         <ul>
             <li><a href="/">Homepage</a></li>
@@ -37,20 +29,14 @@
         </ul>
     </nav>
 
-    <!-- Semantic HTML Change; div to header -->
     <header class="hero">
         <h1>Personal Budget</h1>
         <h2>A personal-budget management app</h2>
     </header>
 
-    <!-- Semantic HTML Change; div to main-->
-    <!-- A11y Change; ARIA landmark role-->
     <main class="center" id="content" role="main">
 
-        <!-- Semantic HTML Change; div to section-->
         <section>
-
-            <!-- Semantic HTML Change; all divs inside section to article-->
             <article>
                 <h1>Stay on track</h1>
                 <p>
@@ -98,8 +84,6 @@
 
     </main>
 
-    <!-- Semantic HTML Change; div to footer-->
-    <!-- A11y Change; ARIA landmark Tole-->
     <footer role="contentinfo">
         <div class="center">
             All rights reserved &copy; Sania Khan ;]
@@ -112,11 +96,11 @@
     
     <script>
         var dataSource = {
-            labels: [],
-            datasets: [{
-                data: [],
-                backgroundColor: ['SteelBlue', 'LightSkyBlue', 'CadetBlue', 'CornflowerBlue', 'DarkSlateBlue', 'MidnightBlue', 'PaleTurquoise']
-            }]
+        labels: [],
+        datasets: [{
+            data: [],  
+            backgroundColor: []  
+        }]
         };
 
         function createChart() {
@@ -128,26 +112,23 @@
         }
 
         async function getBudget() {
-            const res = await axios.get('http://localhost:3000/budget')
+            const res = await axios.get('http://localhost:3000/budget');
+            
+            if (!dataSource.datasets[0].backgroundColor) {
+                dataSource.datasets[0].backgroundColor = [];
+            }
 
-            for (var i = 0; i < res.data.budget.length; i++) {
-                dataSource.datasets[0].data[i] = res.data.budget[i].budget;
-                dataSource.labels[i] = res.data.budget[i].title;
+            for (var i = 0; i < res.data.length; i++) {
+                dataSource.labels.push(res.data[i].title);  
+                dataSource.datasets[0].data.push(res.data[i].amount); 
+                dataSource.datasets[0].backgroundColor.push(res.data[i].color); 
             }
 
             createChart();
-
-            var labels = dataSource.labels;
-            var values = dataSource.datasets[0].data;
-
-            results = labels.map(function(label, i) {
-                return { label: label, value: parseInt(values[i], 10)};
-            });
-
-            return results; 
         }
 
         getBudget();
+
     </script>
 
     <script>
@@ -192,8 +173,8 @@
                     labels: [],
                     datasets: [{
                         data: [],
-                        backgroundColor: ['SteelBlue', 'LightSkyBlue', 'CadetBlue', 'CornflowerBlue', 'DarkSlateBlue', 'MidnightBlue', 'PaleTurquoise']
-                    }]
+                        backgroundColor: []  
+                }]
                 };
 
 
@@ -207,26 +188,23 @@
         async function getBudget() {
             const res = await axios.get('http://localhost:3000/budget')
 
-            for (var i = 0; i < res.data.budget.length; i++) {
-                dataSource.datasets[0].data[i] = res.data.budget[i].budget;
-                dataSource.labels[i] = res.data.budget[i].title;
+            for (var i = 0; i < res.data.length; i++) { 
+                dataSource.datasets[0].data[i] = res.data[i].amount;
+                dataSource.labels[i] = res.data[i].title; 
+                dataSource.datasets[0].backgroundColor.push(res.data[i].color);
             }
 
             var labels = dataSource.labels;
             var values = dataSource.datasets[0].data;
+            var colors = dataSource.datasets[0].backgroundColor;
             
             results = labels.map(function(label, i) {
-                return { label: label, value: parseInt(values[i], 10)};
+                return { label: label, value: values[i], color: colors[i] };
             });
 
             return results;
         
         }
-
-        var color = d3.scale.ordinal()
-            .domain(["Lorem ipsum", "dolor sit", "amet", "consectetur", "adipisicing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt"])
-            .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
-
 
         d3.select(".randomize")
             .on("click", function(){
@@ -235,12 +213,15 @@
 
 
         (async function() {
-                const budgetData = await getBudget();
-                change(budgetData);
-            })();
+            const budgetData = await getBudget();
+            change(budgetData);
+        })();
 
 
         function change(data) {
+            var color = d3.scale.ordinal()
+                .domain(data.map(d => d.label)) 
+                .range(data.map(d => d.color));
 
             /* ------- PIE SLICES -------*/
             var slice = svg.select(".slices").selectAll("path.slice")
@@ -251,8 +232,7 @@
                 .style("fill", function(d) { return color(d.data.label); })
                 .attr("class", "slice");
 
-            slice		
-                .transition().duration(1000)
+            slice.transition().duration(1000)
                 .attrTween("d", function(d) {
                     this._current = this._current || d;
                     var interpolate = d3.interpolate(this._current, d);
@@ -260,13 +240,11 @@
                     return function(t) {
                         return arc(interpolate(t));
                     };
-                })
+                });
 
-            slice.exit()
-                .remove();
+            slice.exit().remove();
 
             /* ------- TEXT LABELS -------*/
-
             var text = svg.select(".labels").selectAll("text")
                 .data(pie(data), key);
 
@@ -276,7 +254,7 @@
                 .text(function(d) {
                     return d.data.label;
                 });
-            
+
             function midAngle(d){
                 return d.startAngle + (d.endAngle - d.startAngle)/2;
             }
@@ -303,16 +281,13 @@
                     };
                 });
 
-            text.exit()
-                .remove();
+            text.exit().remove();
 
             /* ------- SLICE TO TEXT POLYLINES -------*/
-
             var polyline = svg.select(".lines").selectAll("polyline")
                 .data(pie(data), key);
-            
-            polyline.enter()
-                .append("polyline");
+
+            polyline.enter().append("polyline");
 
             polyline.transition().duration(1000)
                 .attrTween("points", function(d){
@@ -324,11 +299,10 @@
                         var pos = outerArc.centroid(d2);
                         pos[0] = radius * 0.95 * (midAngle(d2) < Math.PI ? 1 : -1);
                         return [arc.centroid(d2), outerArc.centroid(d2), pos];
-                    };			
+                    };
                 });
-            
-            polyline.exit()
-                .remove();
+
+            polyline.exit().remove();
         };
     </script>
 

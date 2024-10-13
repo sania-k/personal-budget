@@ -2,31 +2,39 @@
     "budget": [
         {
             "title": "Take-out",
-            "budget": "30"
+            "amount": 30, 
+            "color": "#98abc5"
         }, 
         {
             "title": "Grocery",
-            "budget": "90"
+            "amount": 90,
+            "color": "#8a89a6" 
+        
         }, 
         {
             "title": "Rent",
-            "budget": "650"
+            "amount": 650,
+            "color": "#7b6888" 
         }, 
         {
             "title": "Utilities",
-            "budget": "100"
+            "amount": 100,
+            "color": "#6b486b" 
         }, 
         {
             "title": "Prescription",
-            "budget": "50"
+            "amount": 50,
+            "color": "#a05d56"
         }, 
         {
             "title": "Gas",
-            "budget": "100"
+            "amount": 100,
+            "color": "#d0743c" 
         }, 
         {
             "title": "Entertainment",
-            "budget": "30"
+            "amount": 30,
+            "color":"#ff8c00"
         }
     ]
 }
